@@ -1395,10 +1395,10 @@ public class HuamiSupport extends AbstractBTLEDeviceSupport {
     private void queueAlarm(Alarm alarm, TransactionBuilder builder, BluetoothGattCharacteristic characteristic) {
         Calendar calendar = alarm.getAlarmCal();
 
-        int maxAlarms = 5; // arbitrary at the moment...
+        int maxAlarms = 10; // arbitrary at the moment...
         if (alarm.getIndex() >= maxAlarms) {
             if (alarm.isEnabled()) {
-                GB.toast(getContext(), "Only 5 alarms are currently supported.", Toast.LENGTH_LONG, GB.WARN);
+                GB.toast(getContext(), "Only 10 alarms are currently supported.", Toast.LENGTH_LONG, GB.WARN);
             }
             return;
         }

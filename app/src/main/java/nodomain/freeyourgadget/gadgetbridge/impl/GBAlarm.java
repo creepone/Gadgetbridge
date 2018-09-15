@@ -40,9 +40,20 @@ public class GBAlarm implements Alarm {
     private int repetition;
     private int hour;
     private int minute;
+    private Calendar createdAt;
 
-    public static final String[] DEFAULT_ALARMS = {"2,false,false,0,15,30", "1,false,false,96,8,0", "0,false,true,31,7,30"};
-
+    public static final String[] DEFAULT_ALARMS = {
+        new GBAlarm(9, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(8, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(7, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(6, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(5, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(4, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(3, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(2, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(1, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+        new GBAlarm(0, false, false, Alarm.ALARM_ONCE, 0, 0).toPreferences(),
+    };
 
     public GBAlarm(int index, boolean enabled, boolean smartWakeup, int repetition, int hour, int minute) {
         this.index = index;
@@ -51,6 +62,7 @@ public class GBAlarm implements Alarm {
         this.repetition = repetition;
         this.hour = hour;
         this.minute = minute;
+        this.createdAt = Calendar.getInstance();
     }
 
     public GBAlarm(String fromPreferences) {
@@ -62,6 +74,18 @@ public class GBAlarm implements Alarm {
         this.repetition = Integer.parseInt(tokens[3]);
         this.hour = Integer.parseInt(tokens[4]);
         this.minute = Integer.parseInt(tokens[5]);
+
+        this.createdAt = Calendar.getInstance();
+        this.createdAt.setTimeInMillis(Long.parseLong(tokens[6]));
+
+        // If a one-shot alarm was already supposed to fire, disable it.
+        if (this.repetition == Alarm.ALARM_ONCE) {
+            Calendar nowWithTolerance = Calendar.getInstance();
+            nowWithTolerance.add(Calendar.MINUTE, 1);
+            if (getAlarmCal().before(nowWithTolerance)) {
+                this.enabled = false;
+            }
+        }
     }
 
     public static GBAlarm createSingleShot(int index, boolean smartWakeup, Calendar calendar) {
@@ -138,12 +162,11 @@ public class GBAlarm implements Alarm {
 
     @Override
     public Calendar getAlarmCal() {
-
         Calendar alarm = Calendar.getInstance();
-        Calendar now = Calendar.getInstance();
+        alarm.setTimeInMillis(this.createdAt.getTimeInMillis());
         alarm.set(Calendar.HOUR_OF_DAY, this.hour);
         alarm.set(Calendar.MINUTE, this.minute);
-        if (now.after(alarm) && repetition == ALARM_ONCE) {
+        if (createdAt.after(alarm) && repetition == ALARM_ONCE) {
             //if the alarm is in the past set it to tomorrow
             alarm.add(Calendar.DATE, 1);
         }
@@ -181,7 +204,8 @@ public class GBAlarm implements Alarm {
                 String.valueOf(this.smartWakeup) + ',' +
                 String.valueOf(this.repetition) + ',' +
                 String.valueOf(this.hour) + ',' +
-                String.valueOf(this.minute);
+                String.valueOf(this.minute) + ',' +
+                String.valueOf(this.createdAt.getTimeInMillis());
     }
 
     public void setSmartWakeup(boolean smartWakeup) {

@@ -147,6 +147,7 @@ public class AlarmDetails extends AbstractGBActivity {
         alarm.setRepetition(cbMonday.isChecked(), cbTuesday.isChecked(), cbWednesday.isChecked(), cbThursday.isChecked(), cbFriday.isChecked(), cbSaturday.isChecked(), cbSunday.isChecked());
         alarm.setHour(timePicker.getCurrentHour());
         alarm.setMinute(timePicker.getCurrentMinute());
+        alarm.setEnabled(true);
         alarm.store();
     }
 
